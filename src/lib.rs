@@ -1,5 +1,6 @@
 #![feature(trait_alias)]
 
+pub mod config;
 pub mod error;
 pub mod word_config;
 

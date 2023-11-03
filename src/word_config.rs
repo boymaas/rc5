@@ -39,7 +39,7 @@ macro_rules! impl_word_config {
   ($config:tt, $type:tt, $q:expr, $p:expr) => {
     pub struct $config;
 
-    impl RC5WordConfig for $type {
+    impl RC5WordConfig for $config {
       type Type = $type;
 
       const P: Self::Type = $p;
