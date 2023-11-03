@@ -34,7 +34,7 @@ impl<W: Rc5WordConfig> Rc5Config<W> {
   }
 }
 
-/// Convenience function for building an `RC5Config` with the default
+/// Convenience function for building an `RC5Config` with the suggested defaults
 pub fn rc5_32_12_16() -> Rc5Config<Rc5_32> {
   Rc5Config::<Rc5_32>::build(12, 16).unwrap()
 }
@@ -42,6 +42,7 @@ pub fn rc5_32_12_16() -> Rc5Config<Rc5_32> {
 #[cfg(test)]
 mod test {
   use {super::*, crate::word_config::Rc5_32};
+
   #[test]
   fn test_build() {
     let config = Rc5Config::<Rc5_32>::build(12, 16).unwrap();
