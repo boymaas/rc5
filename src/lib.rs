@@ -2,6 +2,7 @@
 
 pub mod config;
 pub mod error;
+pub mod secret_key;
 pub mod word_config;
 
 // This function should return a cipher text for a given key and plaintext

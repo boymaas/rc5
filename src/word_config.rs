@@ -1,6 +1,6 @@
 use {
   num::{
-    traits::{WrappingAdd, WrappingSub},
+    traits::{WrappingAdd, WrappingSub, Zero},
     Num,
     NumCast,
     PrimInt,
@@ -11,7 +11,7 @@ use {
 /// This trait defines the minimal set of operations that a type must conform to
 /// in order to work with our encryption and decryption algorithm.
 pub trait AdvancedNumeric =
-  Num + BitXor + WrappingAdd + WrappingSub + PrimInt + NumCast;
+  Num + BitXor + WrappingAdd + WrappingSub + PrimInt + NumCast + Zero;
 
 /// This trait implements the word configuration aspect of the RC5
 /// algorithm, which is separate from the configuration of the rounds and
@@ -22,13 +22,14 @@ pub trait AdvancedNumeric =
 /// on the parameters associated with the chosen word size. To obtain an
 /// RC5Config that can be utilized for encryption/decryption, the config
 /// module can be used.
-pub trait RC5WordConfig {
+pub trait Rc5WordConfig {
   type Type: AdvancedNumeric;
 
   /// This is the version of the RC5 algorithm.
   const VERSION: u8 = 0x10;
 
   /// Word size in bits. The W parameter of the RC5 algorithm
+  const WORD_SIZE_IN_BYTES: usize = size_of::<Self::Type>();
   const WORD_SIZE_IN_BITS: usize = size_of::<Self::Type>() * 8;
 
   const P: Self::Type; // Odd((e − 2)2^w)
@@ -39,7 +40,7 @@ macro_rules! impl_word_config {
   ($config:tt, $type:tt, $q:expr, $p:expr) => {
     pub struct $config;
 
-    impl RC5WordConfig for $config {
+    impl Rc5WordConfig for $config {
       type Type = $type;
 
       const P: Self::Type = $p;
