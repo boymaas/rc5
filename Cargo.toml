@@ -3,6 +3,11 @@ name = "rc5"
 version = "0.1.0"
 authors = ["Boy Maas <boy.maas@gmail.com>"]
 edition = "2021"
+keywords = ["rc5", "cryptography", "encryption", "security"]
+description = "RC5 Encryption Algorithm implementation in Rust"
+readme = "README.md"
+repository = "https://github.com/boymaas/rc5"
+license = "GPL-3.0"
 
 [dependencies]
 num = "0.4.1"
