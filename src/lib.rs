@@ -10,7 +10,7 @@ use error::Rc5Result;
 pub use {
   config::Rc5Config,
   secret_key::{ExpandedKey, SecretKey},
-  word_config::{Rc5WordConfig, Rc5_128, Rc5_16, Rc5_32, Rc5_64},
+  word_config::{Rc5WordConfig, Rc5_128, Rc5_16, Rc5_32, Rc5_64, Rc5_8},
 };
 
 /// This is an encode function that can be configured with the Rc5WordConfig,
@@ -18,10 +18,10 @@ pub use {
 pub fn encode<W: Rc5WordConfig>(
   rounds: usize,
   keysize: usize,
-  key: Vec<u8>,
-  plaintext: Vec<u8>,
+  key: &[u8],
+  plaintext: &[u8],
 ) -> Rc5Result<Vec<u8>> {
-  SecretKey::new(Rc5Config::<W>::build(rounds, keysize)?, &key)?
+  SecretKey::new(Rc5Config::<W>::build(rounds, keysize)?, key)?
     .expand()?
     .encrypt(&plaintext)
 }
@@ -31,8 +31,8 @@ pub fn encode<W: Rc5WordConfig>(
 pub fn decode<W: Rc5WordConfig>(
   rounds: usize,
   keysize: usize,
-  key: Vec<u8>,
-  plaintext: Vec<u8>,
+  key: &[u8],
+  plaintext: &[u8],
 ) -> Rc5Result<Vec<u8>> {
   SecretKey::new(Rc5Config::<W>::build(rounds, keysize)?, &key)?
     .expand()?

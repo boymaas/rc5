@@ -71,7 +71,8 @@ macro_rules! impl_word_config {
 }
 
 // Provides implementations of various commonly used word sizes.
-impl_word_config!(Rc5_16, u16, 0xB7E1, 0x9E37);
+impl_word_config!(Rc5_8, u8, 0x9F, 0xB7);
+impl_word_config!(Rc5_16, u16, 0x9E37, 0xB7E1);
 impl_word_config!(Rc5_32, u32, 0x9E3779B9, 0xB7E15163);
 impl_word_config!(Rc5_64, u64, 0x9E3779B97F4A7C15, 0xB7E151628AED2A6B);
 impl_word_config!(

@@ -10,7 +10,7 @@ pub enum Error {
   #[error("invalid word size")]
   UnsupportedWordSize,
   #[error("rounds count too large")]
-  RoundsCountTooLarge,
+  RoundsTooLarge,
   #[error("keysize too large")]
   KeySizeTooLarge,
   #[error("wrong keysize, expected {0}, got {1}")]
