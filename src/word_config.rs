@@ -1,4 +1,5 @@
 use {
+  crate::error::Error,
   num::{
     traits::{WrappingAdd, WrappingSub, Zero},
     Num,
@@ -34,6 +35,12 @@ pub trait Rc5WordConfig {
 
   const P: Self::Type; // Odd((e − 2)2^w)
   const Q: Self::Type; // Odd((φ − 1)2^w)
+
+  /// Converts a little-endian byte slice to a word.
+  fn from_le_bytes(bytes: &[u8]) -> Result<Self::Type, Error>;
+
+  /// Converts a word into a little-endian byte slice.
+  fn to_le_bytes(t: Self::Type) -> Vec<u8>;
 }
 
 macro_rules! impl_word_config {
@@ -45,13 +52,27 @@ macro_rules! impl_word_config {
 
       const P: Self::Type = $p;
       const Q: Self::Type = $q;
+
+      fn from_le_bytes(bytes: &[u8]) -> Result<Self::Type, Error> {
+        if bytes.len() != Self::WORD_SIZE_IN_BYTES {
+          return Err(Error::BytesLengthMismatch);
+        }
+
+        Ok(Self::Type::from_le_bytes(
+          bytes.try_into().map_err(|_| Error::BytesLengthMismatch)?,
+        ))
+      }
+
+      fn to_le_bytes(t: Self::Type) -> Vec<u8> {
+        $type::to_le_bytes(t).to_vec()
+      }
     }
   };
 }
 
 // Provides implementations of various commonly used word sizes.
 impl_word_config!(Rc5_16, u16, 0xB7E1, 0x9E37);
-impl_word_config!(Rc5_32, u32, 0xB7E15163, 0x9E3779B9);
+impl_word_config!(Rc5_32, u32, 0x9E3779B9, 0xB7E15163);
 impl_word_config!(Rc5_64, u64, 0x9E3779B97F4A7C15, 0xB7E151628AED2A6B);
 impl_word_config!(
   Rc5_128,

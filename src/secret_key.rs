@@ -1,5 +1,6 @@
 use {
   crate::{
+    cipher::{decrypt_block, encrypt_block},
     config::Rc5Config,
     error::{Error, Rc5Result},
     word_config::Rc5WordConfig,
@@ -30,7 +31,7 @@ impl<W: Rc5WordConfig> SecretKey<W> {
   }
 
   /// Key expansion algorithm
-  pub fn expand_key(&self) -> Rc5Result<ExpandedSecretKey<W>> {
+  pub fn expand(&self) -> Rc5Result<ExpandedKey<W>> {
     // 1. key bytes to words:
     let mut words: Vec<W::Type> = Self::key_to_words(&self.key);
 
@@ -72,7 +73,7 @@ impl<W: Rc5WordConfig> SecretKey<W> {
       j = (j + 1) % words.len();
     }
 
-    Ok(ExpandedSecretKey { subkeys })
+    Ok(ExpandedKey { subkeys })
   }
 
   /// c = [max(b, 1) / u]
@@ -107,8 +108,63 @@ impl<W: Rc5WordConfig> SecretKey<W> {
 }
 
 #[derive(Debug)]
-pub struct ExpandedSecretKey<W: Rc5WordConfig> {
+pub struct ExpandedKey<W: Rc5WordConfig> {
   subkeys: Vec<W::Type>,
+}
+
+impl<W: Rc5WordConfig> ExpandedKey<W> {
+  /// Encrypts bytes using the RC5 expanded key and returns the ciphertext.
+  /// The plaintext must be a multiple of the block size, and padding is not
+  /// implemented.
+  pub fn encrypt(&self, plaintext: &[u8]) -> Result<Vec<u8>, Error> {
+    let word_bytes = W::WORD_SIZE_IN_BYTES;
+    let block_size = 2 * word_bytes;
+
+    if plaintext.len() % block_size != 0 {
+      return Err(Error::PlaintextBlockSizeMismatch);
+    }
+
+    let mut ciphertext = Vec::with_capacity(plaintext.len());
+    for block in plaintext.chunks(block_size) {
+      let block = [
+        W::from_le_bytes(&block[0..word_bytes])?,
+        W::from_le_bytes(&block[word_bytes..block_size])?,
+      ];
+
+      ciphertext.extend(
+        encrypt_block::<W>(&self.subkeys, block)?
+          .into_iter()
+          .flat_map(|w| W::to_le_bytes(w)),
+      );
+    }
+
+    Ok(ciphertext)
+  }
+
+  pub fn decrypt(&self, ciphertext: &[u8]) -> Result<Vec<u8>, Error> {
+    let word_bytes = W::WORD_SIZE_IN_BYTES;
+    let block_size = 2 * word_bytes;
+
+    if ciphertext.len() % block_size != 0 {
+      return Err(Error::PlaintextBlockSizeMismatch);
+    }
+
+    let mut plaintext = Vec::with_capacity(ciphertext.len());
+    for block in ciphertext.chunks(block_size) {
+      let block = [
+        W::from_le_bytes(&block[0..word_bytes])?,
+        W::from_le_bytes(&block[word_bytes..block_size])?,
+      ];
+
+      plaintext.extend(
+        decrypt_block::<W>(&self.subkeys, block)?
+          .into_iter()
+          .flat_map(|w| W::to_le_bytes(w)),
+      );
+    }
+
+    Ok(plaintext)
+  }
 }
 
 #[cfg(test)]
@@ -133,7 +189,7 @@ mod test {
   fn test_expanding_key() {
     let cfg = Rc5Config::<Rc5_32>::build(12, 16).unwrap();
     let key = SecretKey::new(cfg, b"i_am_a_good_key!").unwrap();
-    let expanded_key = key.expand_key().unwrap();
+    let expanded_key = key.expand().unwrap();
     assert_eq!(expanded_key.subkeys.len(), 26);
   }
 }
