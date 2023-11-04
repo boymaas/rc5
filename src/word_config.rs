@@ -2,17 +2,11 @@ use {
   crate::error::Error,
   num::{
     traits::{WrappingAdd, WrappingSub, Zero},
-    Num,
     NumCast,
     PrimInt,
   },
   std::{mem::size_of, ops::BitXor},
 };
-
-/// This trait defines the minimal set of operations that a type must conform to
-/// in order to work with our encryption and decryption algorithm.
-pub trait AdvancedNumeric =
-  Num + BitXor + WrappingAdd + WrappingSub + PrimInt + NumCast + Zero;
 
 /// This trait implements the word configuration aspect of the RC5
 /// algorithm, which is separate from the configuration of the rounds and
@@ -24,7 +18,7 @@ pub trait AdvancedNumeric =
 /// RC5Config that can be utilized for encryption/decryption, the config
 /// module can be used.
 pub trait Rc5WordConfig {
-  type Type: AdvancedNumeric;
+  type Type: BitXor + WrappingAdd + WrappingSub + PrimInt + NumCast + Zero;
 
   /// This is the version of the RC5 algorithm.
   const VERSION: u8 = 0x10;

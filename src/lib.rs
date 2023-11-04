@@ -1,5 +1,3 @@
-#![feature(trait_alias)]
-
 mod cipher;
 mod config;
 mod error;
@@ -26,7 +24,7 @@ pub fn encode<W: Rc5WordConfig>(
     .encrypt(&plaintext)
 }
 
-/// This is an decode function that can be configured with the Rc5WordConfig,
+/// This is a decode function that can be configured with the Rc5WordConfig,
 /// rounds, and key sizes.
 pub fn decode<W: Rc5WordConfig>(
   rounds: usize,
