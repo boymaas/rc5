@@ -27,16 +27,16 @@ pub fn encrypt_block<W: Rc5WordConfig>(
   block[1] = block[1].wrapping_add(&expanded_key[1]);
 
   for i in 1..=num_rounds {
-    let rotation = block[1].to_u128().ok_or(Error::InvalidWordSize)?
-      % W::WORD_SIZE_IN_BITS as u128;
+    let rotation = (block[1].to_u128().ok_or(Error::UnsupportedWordSize)?
+      % W::WORD_SIZE_IN_BITS as u128) as u32;
     block[0] = (block[0].bitxor(block[1]))
-      .rotate_left(rotation as u32)
+      .rotate_left(rotation)
       .wrapping_add(&expanded_key[2 * i]);
 
-    let rotation = block[0].to_u128().ok_or(Error::InvalidWordSize)?
-      % W::WORD_SIZE_IN_BITS as u128;
+    let rotation = (block[0].to_u128().ok_or(Error::UnsupportedWordSize)?
+      % W::WORD_SIZE_IN_BITS as u128) as u32;
     block[1] = (block[1].bitxor(block[0]))
-      .rotate_left(rotation as u32)
+      .rotate_left(rotation)
       .wrapping_add(&expanded_key[2 * i + 1]);
   }
 
@@ -58,17 +58,17 @@ pub fn decrypt_block<W: Rc5WordConfig>(
   let num_rounds = (expanded_key.len() / 2) - 1;
 
   for i in (1..=num_rounds).rev() {
-    let rotation = block[0].to_u128().ok_or(Error::InvalidWordSize)?
-      % W::WORD_SIZE_IN_BITS as u128;
+    let rotation = (block[0].to_u128().ok_or(Error::UnsupportedWordSize)?
+      % W::WORD_SIZE_IN_BITS as u128) as u32;
 
     block[1] = (block[1].wrapping_sub(&expanded_key[2 * i + 1]))
-      .rotate_right(rotation as u32)
+      .rotate_right(rotation)
       .bitxor(block[0]);
 
-    let rotation = block[1].to_u128().ok_or(Error::InvalidWordSize)?
-      % W::WORD_SIZE_IN_BITS as u128;
+    let rotation = (block[1].to_u128().ok_or(Error::UnsupportedWordSize)?
+      % W::WORD_SIZE_IN_BITS as u128) as u32;
     block[0] = (block[0].wrapping_sub(&expanded_key[2 * i]))
-      .rotate_right(rotation as u32)
+      .rotate_right(rotation)
       .bitxor(block[1]);
   }
 

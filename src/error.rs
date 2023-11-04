@@ -8,7 +8,7 @@ pub enum Error {
   #[error("plaintext should be multiple of block size")]
   PlaintextBlockSizeMismatch,
   #[error("invalid word size")]
-  InvalidWordSize,
+  UnsupportedWordSize,
   #[error("rounds count too large")]
   RoundsCountTooLarge,
   #[error("keysize too large")]

@@ -20,7 +20,7 @@ pub struct Rc5Config<W: Rc5WordConfig> {
 impl<W: Rc5WordConfig> Rc5Config<W> {
   pub fn build(rounds: usize, keysize: usize) -> Rc5Result<Self> {
     if rounds > MAX_ROUNDS {
-      return Err(Error::RoundsCountTooLarge);
+      return Err(Error::RoundsTooLarge);
     }
     if keysize > MAX_KEY_SIZE {
       return Err(Error::KeySizeTooLarge);

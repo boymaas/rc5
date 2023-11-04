@@ -58,15 +58,19 @@ impl<W: Rc5WordConfig> SecretKey<W> {
       subkeys[i] = subkeys[i].wrapping_add(&a).wrapping_add(&b).rotate_left(3);
       a = subkeys[i];
 
-      // this could be larger than the word size, so we need to mod it
-      let rotation =
-        a.wrapping_add(&b).to_u128().ok_or(Error::InvalidWordSize)?
-          % W::WORD_SIZE_IN_BITS as u128;
+      // we need the correct amount of rotation, as the word size is defined
+      // as W::WORD_SIZE_IN_BITS which has a practical range of 16..=128 which
+      // fits easily into a u32.
+      let rotation = (a
+        .wrapping_add(&b)
+        .to_u128()
+        .ok_or(Error::UnsupportedWordSize)?
+        % W::WORD_SIZE_IN_BITS as u128) as u32;
 
       words[j] = words[j]
         .wrapping_add(&a)
         .wrapping_add(&b)
-        .rotate_left(rotation as u32);
+        .rotate_left(rotation);
       b = words[j];
 
       i = (i + 1) % subkeys.len();
