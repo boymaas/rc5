@@ -6,6 +6,7 @@ use {
   std::marker::PhantomData,
 };
 
+// maximums as per spec
 const MAX_ROUNDS: usize = 256;
 const MAX_KEY_SIZE: usize = 256;
 

@@ -45,7 +45,7 @@ pub fn encode_default(key: Vec<u8>, plaintext: Vec<u8>) -> Rc5Result<Vec<u8>> {
     .encrypt(&plaintext)
 }
 
-// This function should return the plaintext for a given key and ciphertext. It
+// This function returns the plaintext for a given key and ciphertext. It
 // uses the default configuration: rc5_32_12_16.
 pub fn decode_default(key: Vec<u8>, ciphertext: Vec<u8>) -> Rc5Result<Vec<u8>> {
   SecretKey::new(config::rc5_32_12_16(), &key)?
