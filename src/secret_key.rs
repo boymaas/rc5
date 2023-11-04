@@ -30,7 +30,7 @@ impl<W: Rc5WordConfig> SecretKey<W> {
   }
 
   /// Key expansion algorithm
-  pub fn expand_key(&self) -> Result<ExpandedSecretKey<W>, Error> {
+  pub fn expand_key(&self) -> Rc5Result<ExpandedSecretKey<W>> {
     // 1. key bytes to words:
     let mut words: Vec<W::Type> = Self::key_to_words(&self.key);
 
